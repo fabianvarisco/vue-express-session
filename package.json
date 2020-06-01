@@ -10,9 +10,7 @@
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "serve": "^11.3.1"
-  },
+  "devDependencies": {},
   "dependencies": {
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
