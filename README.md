@@ -1,6 +1,5 @@
 https://vuejs.org/v2/guide/
 
+https://www.npmjs.com/package/cookie-parser
 
-next computed properties
-https://vuejs.org/v2/guide/computed.html
-
+next use template
