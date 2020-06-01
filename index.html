@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Vue session</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+</head>
+
+<body>
+
+  <div id="session-example">
+    <div>
+      <p>Ask a yes/no question <input v-model="question"></p>
+      <p>Answer: {{ answer }}</p>
+    </div>
+
+    <div>
+      <p>Enter cuil <input v-model.number="cuil" type="number"></p>
+      <p><button v-on:click="getToken">get token</button></p>
+      <p>Token: {{ token }}</p>
+    </div>
+
+    <div>
+      </p><button v-on:click="createSession">create session</button></p>
+      <p>Data session {{ session }}</p>
+      <p><button v-on:click="deleteSession">exit</button></p>
+    </div>
+
+    <div>
+      <p>Enter text to stamp <input v-model="textToStamp"></p>
+      <p><button v-on:click="invokeStamp">stamp</button></p>
+      <p>Stamped {{ stamp }}</p>
+    </div>
+
+    <div>
+      <p>{{ message }}</p>
+    </div>
+
+  </div>
+
+  <script>
+
+    function getToken() {
+      this.message = null;
+      this.token = null;
+      this.session = null;
+      if (!this.cuil) {
+        this.message = `Empty cuil`;
+        return;
+      }
+      if (this.cuil < 20000000082 || this.cuil > 29999999999) {
+        this.message = `Invalid cuil [${this.cuil}]`;
+        return;
+      }
+      const vm = this;
+      const url = this.mockTokenUrl;
+      axios.post(url, { cuil: vm.cuil })
+        .then((res) => {
+          console.log(res.data)
+          vm.token = res.data.token;
+        })
+        .catch(function (err) {
+          console.log(err);
+          vm.message = `Could not reach - status [${err.status}] [${err.statusText}]`;
+        });
+    }
+
+    function createSession() {
+      this.message = null;
+      this.session = null;
+      if (!this.token) {
+        this.message = `Empty token`;
+        return;
+      }
+      const vm = this;
+      const url = this.sessionUrl;
+      axios.post(url, { token: vm.token, sing: vm.token })
+        .then((res) => {
+          console.log(res.data)
+          vm.session = res.data.tokensso;
+        })
+        .catch(function (err) {
+          console.log(err);
+          vm.message = `Could not reach - status [${err.status}] [${err.statusText}]`;
+        });
+    }
+
+    function deleteSession() {
+      this.message = null;
+      this.session = null;
+
+      axios.delete(this.sessionUrl)
+        .then((res) => {
+          console.log(res.data)
+        })
+        .catch(function (err) {
+          console.log(err);
+          vm.message = `Could not reach - status [${err.status}] [${err.statusText}]`;
+        });
+    }
+
+    function invokeStamp() {
+      this.stamp = null;
+      this.message = null;
+      if (!this.textToStamp) {
+        this.message = `Empty text to stamp`;
+        return;
+      }
+      const vm = this;
+      const url = this.stampUrl;
+      axios.post(url, { textToStamp: vm.textToStamp })
+        .then((res) => {
+          console.log(res.data)
+          vm.stamp = res.data;
+        })
+        .catch(function (err) {
+          console.log(err);
+          vm.message = `Could not reach - status [${err.status}] [${err.statusText}]`;
+        });
+    }
+
+    const domain = 'http://localhost:8080';
+
+    var app = new Vue({
+      el: '#session-example',
+      data: {
+        mockTokenUrl: domain + '/token',
+        sessionUrl: domain + '/session',
+        stampUrl: domain + '/stamp',
+        logoutUrl: domain + '/session',
+        question: '',
+        answer: 'I cannot give you an answer until you ask a question!',
+        cuil: 20123456789,
+        token: null,
+        session: null,
+        textToStamp: null,
+        stamp: null,
+        message: null,
+      },
+      watch: {
+        // whenever question changes, this function will run
+        question: function (newQuestion, oldQuestion) {
+          this.answer = 'Waiting for you to stop typing...'
+          this.debouncedGetAnswer()
+        }
+      },
+      created: function () {
+        // _.debounce is a function provided by lodash to limit how
+        // often a particularly expensive operation can be run.
+        // In this case, we want to limit how often we access
+        // yesno.wtf/api, waiting until the user has completely
+        // finished typing before making the ajax request. To learn
+        // more about the _.debounce function (and its cousin
+        // _.throttle), visit: https://lodash.com/docs#debounce
+        this.debouncedGetAnswer = _.debounce(this.getAnswer, 500)
+      },
+      methods: {
+        getAnswer: function () {
+          if (this.question.indexOf('?') === -1) {
+            this.answer = 'Questions usually contain a question mark. ;-)'
+            return
+          }
+          this.answer = 'Thinking...'
+          var vm = this
+          axios.get('https://yesno.wtf/api')
+            .then(function (response) {
+              vm.answer = _.capitalize(response.data.answer)
+            })
+            .catch(function (error) {
+              vm.answer = 'Error! Could not reach the API. ' + error
+            })
+        },
+        getToken,
+        createSession,
+        deleteSession,
+        invokeStamp,
+      }
+    })
+  </script>
+
+
+</body>
+
+</html>
