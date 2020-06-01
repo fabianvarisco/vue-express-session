@@ -2,13 +2,14 @@
 
 const PORT = process.env.PORT || 8080;
 
+const COOKIE_SECRET = 'XWz-vw-16OXNuFsNUnTMCPbzRKk';
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const expressSanitizer = require('express-sanitizer');
 
 const helmet = require('helmet'); // secure your Express.js apps by setting various HTTP headers
-const uuid = require('uuid');
 const path = require('path');
 
 const app = express();
@@ -26,7 +27,7 @@ const cookiesOptions = {
     expires,
 };
 
-app.use(cookieParser(uuid.v4(), cookiesOptions));
+app.use(cookieParser(COOKIE_SECRET, cookiesOptions));
 
 // log middleware
 app.use((req, res, next) => {
@@ -52,6 +53,7 @@ function encode(data) {
 }
 
 function clearSession(res) {
+  console.log('clearSession');
   res.clearCookie('token');
   res.clearCookie('sign');
   res.clearCookie('views');
