@@ -55,8 +55,7 @@
         return;
       }
       const vm = this;
-      const url = this.mockTokenUrl;
-      axios.post(url, { cuil: vm.cuil })
+      axios.post('/token', { cuil: vm.cuil })
         .then((res) => {
           console.log(res.data)
           vm.token = res.data.token;
@@ -75,8 +74,7 @@
         return;
       }
       const vm = this;
-      const url = this.sessionUrl;
-      axios.post(url, { token: vm.token, sing: vm.token })
+      axios.post('/session', { token: vm.token, sing: vm.token })
         .then((res) => {
           console.log(res.data)
           vm.session = res.data.tokensso;
@@ -91,7 +89,8 @@
       this.message = null;
       this.session = null;
 
-      axios.delete(this.sessionUrl)
+      const vm = this;
+      axios.delete('/session')
         .then((res) => {
           console.log(res.data)
         })
@@ -109,8 +108,7 @@
         return;
       }
       const vm = this;
-      const url = this.stampUrl;
-      axios.post(url, { textToStamp: vm.textToStamp })
+      axios.post('/stamp', { textToStamp: vm.textToStamp })
         .then((res) => {
           console.log(res.data)
           vm.stamp = res.data;
@@ -121,15 +119,9 @@
         });
     }
 
-    const domain = 'http://localhost:8080';
-
-    var app = new Vue({
+    new Vue({
       el: '#session-example',
       data: {
-        mockTokenUrl: domain + '/token',
-        sessionUrl: domain + '/session',
-        stampUrl: domain + '/stamp',
-        logoutUrl: domain + '/session',
         question: '',
         answer: 'I cannot give you an answer until you ask a question!',
         cuil: 20123456789,
