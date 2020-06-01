@@ -3,8 +3,8 @@
 const PORT = process.env.PORT || 8080;
 
 const express = require('express');
-const session = require('cookie-session');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const expressSanitizer = require('express-sanitizer');
 
 const helmet = require('helmet'); // secure your Express.js apps by setting various HTTP headers
@@ -19,22 +19,23 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-app.use(session({
-  name: uuid.v4(),
-  keys: ['key1', 'key2'],
-  cookie: {
+const cookiesOptions = {
     // secure: true,
     // httpOnly: true,
+    // sameSite: true,
     expires,
-  },
-}));
+};
+
+app.use(cookieParser(uuid.v4(), cookiesOptions));
 
 // log middleware
 app.use((req, res, next) => {
-  console.log('req.session.token', req.session.token);
-  console.log('req.session.sign', req.session.sign);
-  if (req.session.views) req.session.views++;
-  console.log('req.session.views', req.session.views);
+  const views = req.cookies.views;
+  if (views) {
+    res.cookie('views', parseInt(views, 10)+1);
+  }
+  console.log('req.cookies', req.cookies);
+
   next();
 });
 
@@ -50,14 +51,14 @@ function encode(data) {
   return (new Buffer.from(data)).toString('base64');
 }
 
-function cleanSession(req) {
-  req.session.token = null;
-  req.session.sign = null;
-  req.session.views = null;
+function clearSession(res) {
+  res.clearCookie('token');
+  res.clearCookie('sign');
+  res.clearCookie('views');
 }
 
 app.post('/token', (req, res) => {
-  cleanSession(req);
+  clearSession(res);
   const cuil = req.sanitize(req.body.cuil);
   const token = encode(cuil); // ToDo: usar auth.mock
   const sign = encode(cuil);
@@ -65,33 +66,33 @@ app.post('/token', (req, res) => {
 });
 
 app.post('/session', (req, res) => {
-  cleanSession(req);
+  clearSession(res);
   const token = req.sanitize(req.body.token);
   const sign = req.sanitize(req.body.sign);
   const cuil = decode(token); // ToDo: Validar token y sign
   const tokensso = { cuil: cuil };
-  req.session.token = token;
-  req.session.sign = sign;
-  req.session.views = 0;
+  res.cookie('token', token);
+  res.cookie('sign', sign);
+  res.cookie('views', 0);
   res.send({ tokensso });
 });
 
 app.delete('/session', (req, res) => {
-  cleanSession(req);
-  res.send({});
+  clearSession(res);
+  res.end();
 });
 
 app.get('/session', (req, res) => {
   // ToDo: Error si no existe
-  const cuil = decode(req.session.token);
+  const cuil = decode(req.cookies.token);
   const tokensso = { cuil: cuil };
-  res.send({ tokensso, views: req.session.views });
+  res.send({ tokensso, views: req.cookies.views });
 });
 
 function sessionOk(req, res) {
   try {
-    if (!req.session.token) throw Error("Empty session");
-    const cuil = decode(req.session.token);
+    if (!req.cookies.token) throw Error("Empty session");
+    const cuil = decode(req.cookies.token);
     if (cuil < 20000000028 || cuil > 29999999999) throw Error("Invalid session");
     return true;
 
