@@ -31,6 +31,9 @@ app.use(cookieParser(COOKIE_SECRET, cookiesOptions));
 
 // log middleware
 app.use((req, res, next) => {
+  console.log('==========');
+  console.log(req.protocol, req.method, req.hostname);
+  console.log(req.originalUrl);
   const views = req.cookies.views;
   if (views) {
     res.cookie('views', parseInt(views, 10)+1);
