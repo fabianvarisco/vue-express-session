@@ -35,7 +35,8 @@ app.use((req, res, next) => {
   if (views) {
     res.cookie('views', parseInt(views, 10)+1);
   }
-  console.log('req.cookies', req.cookies);
+  console.log('cookies', req.cookies);
+  console.log('signedCookies', req.signedCookies);
 
   next();
 });
@@ -73,8 +74,8 @@ app.post('/session', (req, res) => {
   const sign = req.sanitize(req.body.sign);
   const cuil = decode(token); // ToDo: Validar token y sign
   const tokensso = { cuil: cuil };
-  res.cookie('token', token);
-  res.cookie('sign', sign);
+  res.cookie('token', token, { signed: true });
+  res.cookie('sign', sign, { signed: true });
   res.cookie('views', 0);
   res.send({ tokensso });
 });
@@ -86,15 +87,17 @@ app.delete('/session', (req, res) => {
 
 app.get('/session', (req, res) => {
   // ToDo: Error si no existe
-  const cuil = decode(req.cookies.token);
+  const cuil = decode(req.signedCookies.token);
   const tokensso = { cuil: cuil };
   res.send({ tokensso, views: req.cookies.views });
 });
 
 function sessionOk(req, res) {
   try {
-    if (!req.cookies.token) throw Error("Empty session");
-    const cuil = decode(req.cookies.token);
+    const token = req.signedCookies.token;
+    if (!token) throw Error("Empty session");
+    const cuil = decode(token);
+    console.log('session cuil:', cuil);
     if (cuil < 20000000028 || cuil > 29999999999) throw Error("Invalid session");
     return true;
 
