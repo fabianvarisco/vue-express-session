@@ -21,8 +21,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 const cookiesOptions = {
     // secure: true,
-    // httpOnly: true,
-    // sameSite: true,
+    httpOnly: true,
+    sameSite: true,
     expires,
 };
 
