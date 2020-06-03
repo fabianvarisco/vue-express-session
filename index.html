@@ -12,29 +12,26 @@
 
   <div id="session-example">
     <div>
-      <p>Ask a yes/no question <input v-model="question"></p>
+      <h1>{{title}}</h1>
+      <br>
+      <p>Ask a yes/no question <input v-model="question" /></p>
       <p>Answer: {{ answer }}</p>
-    </div>
 
-    <div>
-      <p>Enter cuil <input v-model.number="cuil" type="number"></p>
+      <br>
+      <p>Enter cuil<input v-model.number="cuil" type="number" /></p>
       <p><button v-on:click="getToken">get token</button></p>
       <p>Token: {{ token }}</p>
-    </div>
 
-    <div>
       <p><button v-on:click="createSession">create session</button></p>
       <p>Data session {{ session }}</p>
       <p><button v-on:click="deleteSession">exit</button></p>
-    </div>
 
-    <div>
-      <p>Enter text to stamp <input v-model="textToStamp"></p>
+      <br>
+      <p>Enter text to stamp<input v-model="textToStamp" /></p>
       <p><button v-on:click="invokeStamp">stamp</button></p>
       <p>Stamped {{ stamp }}</p>
-    </div>
 
-    <div>
+      <br>
       <p>{{ message }}</p>
     </div>
 
@@ -122,6 +119,7 @@
     new Vue({
       el: '#session-example',
       data: {
+        title: 'Vue Auth - Client Side Render',
         question: '',
         answer: 'I cannot give you an answer until you ask a question!',
         cuil: 20123456789,
