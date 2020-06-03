@@ -8,8 +8,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const expressSanitizer = require('express-sanitizer');
-// const validator = require("express-validator");
-/  const compress = require('compression');
+const compress = require('compression');
 
 // secure your Express.js apps by setting various HTTP headers
 const helmet = require('helmet');
@@ -17,12 +16,12 @@ const path = require('path');
 
 const server = express();
 server.use(helmet());
-// server.disable('x-powered-by');
+server.disable('x-powered-by');
 server.use(express.json());
 server.use(expressSanitizer());
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
-// server.use(compress());
+server.use(compress());
 
 const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 const cookiesOptions = {
