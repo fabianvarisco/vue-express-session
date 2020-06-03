@@ -8,35 +8,40 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const expressSanitizer = require('express-sanitizer');
+// const validator = require("express-validator");
+/  const compress = require('compression');
 
-const helmet = require('helmet'); // secure your Express.js apps by setting various HTTP headers
+// secure your Express.js apps by setting various HTTP headers
+const helmet = require('helmet');
 const path = require('path');
 
-const app = express();
-app.use(helmet());
-app.use(express.json());
-app.use(expressSanitizer());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+const server = express();
+server.use(helmet());
+// server.disable('x-powered-by');
+server.use(express.json());
+server.use(expressSanitizer());
+server.use(bodyParser.json());
+server.use(bodyParser.urlencoded({ extended: true }));
+// server.use(compress());
 
 const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 const cookiesOptions = {
-    // secure: true,
-    httpOnly: true,
-    sameSite: true,
-    expires,
+  // secure: true,
+  httpOnly: true,
+  sameSite: true,
+  expires,
 };
 
-app.use(cookieParser(COOKIE_SECRET, cookiesOptions));
+server.use(cookieParser(COOKIE_SECRET, cookiesOptions));
 
 // log middleware
-app.use((req, res, next) => {
+server.use((req, res, next) => {
   console.log('==========');
   console.log(req.protocol, req.method, req.hostname);
   console.log(req.originalUrl);
   const views = req.cookies.views;
   if (views) {
-    res.cookie('views', parseInt(views, 10)+1);
+    res.cookie('views', parseInt(views, 10) + 1);
   }
   console.log('cookies', req.cookies);
   console.log('signedCookies', req.signedCookies);
@@ -44,16 +49,16 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname+'/index.html'));
+server.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname + '/index.html'));
 });
 
 function decode(data) {
-  return (new Buffer.from(data, 'base64')).toString('ascii');
+  return Buffer.from(data, 'base64').toString('ascii');
 }
 
 function encode(data) {
-  return (new Buffer.from(data)).toString('base64');
+  return Buffer.from(data).toString('base64');
 }
 
 function clearSession(res) {
@@ -63,7 +68,7 @@ function clearSession(res) {
   res.clearCookie('views');
 }
 
-app.post('/token', (req, res) => {
+server.post('/token', (req, res) => {
   clearSession(res);
   const cuil = req.sanitize(req.body.cuil);
   const token = encode(cuil); // ToDo: usar auth.mock
@@ -71,7 +76,7 @@ app.post('/token', (req, res) => {
   res.send({ token, sign });
 });
 
-app.post('/session', (req, res) => {
+server.post('/session', (req, res) => {
   clearSession(res);
   const token = req.sanitize(req.body.token);
   const sign = req.sanitize(req.body.sign);
@@ -83,13 +88,17 @@ app.post('/session', (req, res) => {
   res.send({ tokensso });
 });
 
-app.delete('/session', (req, res) => {
+server.delete('/session', (req, res) => {
   clearSession(res);
   res.end();
 });
 
-app.get('/session', (req, res) => {
-  // ToDo: Error si no existe
+server.get('/session', (req, res) => {
+  const token = req.signedCookies.token;
+  if (!token) {
+    res.end();
+    return;
+  }
   const cuil = decode(req.signedCookies.token);
   const tokensso = { cuil: cuil };
   res.send({ tokensso, views: req.cookies.views });
@@ -98,20 +107,20 @@ app.get('/session', (req, res) => {
 function sessionOk(req, res) {
   try {
     const token = req.signedCookies.token;
-    if (!token) throw Error("Empty session");
+    if (!token) throw Error('Empty session');
     const cuil = decode(token);
     console.log('session cuil:', cuil);
-    if (cuil < 20000000028 || cuil > 29999999999) throw Error("Invalid session");
+    if (cuil < 20000000028 || cuil > 29999999999) throw Error('Invalid session');
     return true;
 
-  } catch(err) {
+  } catch (err) {
     console.error(err.message);
     res.status(401).send('It lacks valid authentication credentials for the target resource - ' + err).end();
     return false;
   }
 }
 
-app.post('/stamp', (req, res) => {
+server.post('/stamp', (req, res) => {
   if (!sessionOk(req, res)) return;
 
   const textToStamp = req.sanitize(req.body.textToStamp);
@@ -120,10 +129,10 @@ app.post('/stamp', (req, res) => {
 });
 
 // route for handling 404 requests(unavailable routes)
-app.use((req, res) => {
+server.use((req, res) => {
   res.status(404).send("Sorry can't find that!");
 });
 
-app.listen(PORT);
-
-console.log('Running at Port', PORT);
+server.listen(PORT, () => {
+  console.log('Worker', process.pid, 'listening on port', PORT);
+});
