@@ -2,17 +2,26 @@
   "name": "vue-2",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "",
+  "author": "",
+  "license": "ISC",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --detectOpenHandles --testTimeout=10000",
     "pretest": "eslint --fix --ignore-path .gitignore .",
     "run": "node server"
   },
-  "author": "",
-  "license": "ISC",
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 10000,
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  },
   "devDependencies": {
     "eslint": "^7.1.0",
-    "eslint-config-strongloop": "^2.1.0"
+    "eslint-config-strongloop": "^2.1.0",
+    "jest": "^26.0.1",
+    "supertest": "^4.0.2"
   },
   "dependencies": {
     "compression": "^1.7.4",

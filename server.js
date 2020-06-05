@@ -127,11 +127,15 @@ server.post('/stamp', (req, res) => {
   res.send({ stamped: 'ok', hash });
 });
 
+server.get('/test', (req, res) => {
+  res.send({ status: 'OK' });
+});
+
 // route for handling 404 requests(unavailable routes)
 server.use((req, res) => {
   res.status(404).send("Sorry can't find that!");
 });
 
-server.listen(PORT, () => {
+module.exports = server.listen(PORT, () => {
   console.log('Worker', process.pid, 'listening on port', PORT);
 });
