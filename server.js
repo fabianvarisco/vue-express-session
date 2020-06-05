@@ -9,12 +9,25 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const expressSanitizer = require('express-sanitizer');
 const compress = require('compression');
+// const methodOverride = require('method-override');
+const expressVue = require('express-vue');
 
 // secure your Express.js apps by setting various HTTP headers
 const helmet = require('helmet');
 const path = require('path');
 
+const vueOptions = {
+//  rootPath: path.join(__dirname, 'routes'),
+  rootPath: __dirname,
+  head: {
+    styles: [{ style: 'assets/css/style.css' }],
+  },
+};
+
 const server = express();
+const expressVueMiddleware = expressVue.init(vueOptions);
+server.use(expressVueMiddleware);
+
 server.use(helmet());
 server.disable('x-powered-by');
 server.use(express.json());
@@ -22,6 +35,9 @@ server.use(expressSanitizer());
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(compress());
+
+// server.use(server.locals.rootPath, express.static(__dirname));
+
 
 const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 const cookiesOptions = {
@@ -32,6 +48,9 @@ const cookiesOptions = {
 };
 
 server.use(cookieParser(COOKIE_SECRET, cookiesOptions));
+
+// TODO: methodOverride es nescesario ??
+// server.use(methodOverride());
 
 // log middleware
 server.use((req, res, next) => {
@@ -48,9 +67,48 @@ server.use((req, res, next) => {
   next();
 });
 
-server.get('/', (req, res) => {
+server.get('/app0', (req, res) => {
   res.sendFile(path.join(__dirname + '/index.html'));
 });
+
+server.get('/app1', (req, res) => {
+  const data = {
+    title: req.path,
+  };
+  req.vueOptions.head.title = 'server side render app1 !!!';
+  res.renderVue('/app1.vue', data, req.vueOptions);
+});
+
+server.get('/app2', (req, res) => {
+  const data = {
+    title: req.path,
+  };
+  req.vueOptions.head.styles.push({
+    src: 'https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js',
+  });
+  req.vueOptions.head.scripts.push({
+    src: 'https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js',
+  });
+
+  req.vueOptions.head.title = 'server side render app2 !!!';
+  res.renderVue('/app2.vue', data, req.vueOptions);
+});
+
+server.get('/app3', (req, res) => {
+  const data = {
+    title: req.path,
+  };
+  req.vueOptions.head.scripts.push({
+    src: 'https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js',
+  });
+  req.vueOptions.head.scripts.push({
+    src: 'https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js',
+  });
+
+  req.vueOptions.head.title = 'server side render app3 !!!';
+  res.renderVue('/app3.vue', data, req.vueOptions);
+});
+
 
 function decode(data) {
   return Buffer.from(data, 'base64').toString('ascii');

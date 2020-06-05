@@ -1,5 +1,2 @@
-https://vuejs.org/v2/guide/
 
-https://www.npmjs.com/package/cookie-parser
-
-next use template
+https://github.com/express-vue/express-vue/issues/194
