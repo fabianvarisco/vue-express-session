@@ -68,7 +68,7 @@
                     vm.destination = res.data.destination;
                 }).catch(function(err) {
                     console.log(err);
-                    vm.result = err.response.data || err.message || err.statusText;
+                    vm.result = err.data || ( err.response ? err.response.data : err );
                     return;
                 });
             }
@@ -87,17 +87,5 @@
 
     div.form-group input {
         display: inline-block;
-    }
-
-    .btn-link {
-        border: none;
-        outline: none;
-        background: none;
-        cursor: pointer;
-        color: #0000EE;
-        padding: 0;
-        text-decoration: underline;
-        font-family: inherit;
-        font-size: inherit;
     }
 </style>
