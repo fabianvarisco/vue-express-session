@@ -37,18 +37,18 @@ module.exports = (server) => {
     const cuil = req.sanitize(req.body.cuil);
     const result = cuitUtil.validateAsCuil(cuil);
     if (result.error) {
-      res.status(400).send(result.error.message);
+      res.status(400).send(result.error.message).end();
       return;
     }
     const password = req.sanitize(req.body.password);
-    if (!password) {
-      res.status(400).send('Empty password');
+    if (password.length < 5) {
+      res.status(400).send('Empty or short password').end();
       return;
     }
     const destination = req.sanitize(req.body.service);
     // TODO: map service -> destination
     if (!checkURL(destination)) {
-      res.status(400).send(`Invalid destination [${destination}]`);
+      res.status(400).send(`Invalid destination [${destination}]`).end();
       return;
     }
     const token = encode(cuil); // TODO: usar auth.mock
