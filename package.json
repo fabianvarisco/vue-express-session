@@ -8,7 +8,7 @@
   "scripts": {
     "test": "jest --detectOpenHandles --testTimeout=10000",
     "pretest": "eslint --fix --ignore-path .gitignore .",
-    "run": "node server"
+    "run": "node --inspect=127.0.0.1:9230 server"
   },
   "jest": {
     "testEnvironment": "node",
