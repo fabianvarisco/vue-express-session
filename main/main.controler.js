@@ -6,10 +6,6 @@ function decode(data) {
   return Buffer.from(data, 'base64').toString('ascii');
 };
 
-function encode(data) {
-  return Buffer.from(data).toString('base64');
-};
-
 const freeRoutes = [
   { method: 'GET', route: '/login' },
   { method: 'POST', route: '/login' },
@@ -47,17 +43,34 @@ module.exports = (server) => {
       console.log('session cuil:', cuil);
       const result = cuitUtil.validateAsCuil(cuil);
       if (result.error) throw Error(`Invalid session - [${result.error.message}]`);
+
+      const bodyUserCuit = req.sanitize(req.body.user.cuit);
+      if (bodyUserCuit && bodyUserCuit !== cuil) throw Error(`Invalid session - from body [${bodyUserCuit}] - from cookie [${cuil}]`).emd();
       next();
 
     } catch (err) {
-      console.error(err.message);
-      res.status(401).send('It lacks valid authentication credentials for the target resource - ' + err).end();
+      console.error('ERROR', err.message);
+      res.status(401).send(err.message).end();
     }
   });
 
   server.get('/', (req, res) => {
+    const token = req.signedCookies.token;
+    var cuil;
+    var name = '';
+    if (token) {
+      cuil = decode(req.signedCookies.token);
+      if (cuitUtil.validateAsCuil(cuil).error) {
+        cuil = '';
+      } else {
+        // TODO: get username name from PUC service
+        name = `name of ${cuil}`;
+      }
+    }
     const data = {
-      title: req.path,
+      title: 'AFIP TSA',
+      user: { cuil, name },
+      hash: '',
     };
     req.vueOptions.head.scripts.push({
       src: 'https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js',
@@ -73,12 +86,13 @@ module.exports = (server) => {
     clearSession(res);
     const token = req.sanitize(req.body.token);
     const sign = req.sanitize(req.body.sign);
-    const cuil = decode(token); // ToDo: Validar token y sign
-    const tokensso = { cuil: cuil };
+
+    // TODO: validate token / sign
+
     res.cookie('token', token, { signed: true });
     res.cookie('sign', sign, { signed: true });
     res.cookie('views', 0);
-    res.json({ tokensso });
+    res.redirect('/');
   });
 
   server.delete('/session', (req, res) => {
@@ -87,19 +101,16 @@ module.exports = (server) => {
   });
 
   server.get('/session', (req, res) => {
-    const token = req.signedCookies.token;
-    if (!token) {
-      res.end();
-      return;
-    }
-    const cuil = decode(req.signedCookies.token);
-    const tokensso = { cuil: cuil };
-    res.josn({ tokensso, views: req.cookies.views });
+    const tokensso = req.signedCookies.token;
+    res.json({ tokensso, views: req.cookies.views });
   });
 
   server.post('/stamp', (req, res) => {
-    const textToStamp = req.sanitize(req.body.textToStamp);
-    const hash = encode(textToStamp);
+    const hash = req.sanitize(req.body.hash);
+    const userCuit = req.sanitize(req.body.user.cuit);
+    console.log(`user [${userCuit}] hashToStamp [${hash}]`);
+
+    // TODO: invoke stamp service
     res.json({ stamped: 'ok', hash });
   });
 };
