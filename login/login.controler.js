@@ -18,11 +18,11 @@ function checkURL(s) {
   }
 };
 
-module.exports = (server) => {
+module.exports = (server, options) => {
   server.get('/login', (req, res) => {
     const data = {
       title: 'Mock Login',
-      service: 'http://localhost:8080/session',
+      service: options ? (options.ENTRY_POINT || '') : '',
       cuil: 20000000028,
       password: 123456,
     };

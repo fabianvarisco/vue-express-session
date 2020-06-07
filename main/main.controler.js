@@ -26,7 +26,7 @@ function clearSession(res) {
  * Main Route Controller
  * @param {object} server
  */
-module.exports = (server) => {
+module.exports = (server, options) => {
 
   // access control
   server.use((req, res, next) => {
@@ -71,6 +71,7 @@ module.exports = (server) => {
       title: 'AFIP TSA',
       user: { cuil, name },
       hash: '',
+      authService: options ? (options.AUTH_SERVICE || '') : '',
     };
     req.vueOptions.head.scripts.push({
       src: 'https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js',

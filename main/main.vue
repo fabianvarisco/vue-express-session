@@ -19,6 +19,10 @@
         <form v-on:submit.prevent="logout">
             <button type="submit">logout</button>
         </form>
+        <br>
+        <form v-bind:action="authService" method="get">
+            <button type="submit">Go {{authService}}</button>
+        </form>
     </div>
 </template>
 
@@ -32,6 +36,7 @@
                 textToStamp: '',
                 hash: '',
                 result: '',
+                authService: ''
             }
         },
         methods: {

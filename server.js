@@ -1,6 +1,11 @@
 'use strict';
 
+require('dotenv').config();
 const PORT = process.env.PORT || 8080;
+const PROTOCOL = process.env.PROTOCOL || 'https';
+const ENVIRONMENT = process.env.ENVIRONMENT || 'prod';
+const ENTRY_POINT = process.env.ENTRY_POINT || `${PROTOCOL}://localhost:${PORT}/session`;
+const AUTH_SERVICE = process.env.AUTH_SERVICE || `${PROTOCOL}://localhost:${PORT}/login`;
 
 const COOKIE_SECRET = 'XWz-vw-16OXNuFsNUnTMCPbzRKk';
 
@@ -76,9 +81,11 @@ server.get('/client-side-render', (req, res) => {
   res.sendFile(path.join(__dirname + '/client-side-render.html'));
 });
 
-require('./login/login.controler')(server);
+if (ENVIRONMENT === 'dev') {
+  require('./login/login.controler')(server, {ENTRY_POINT});
+}
 
-require('./main/main.controler')(server);
+require('./main/main.controler')(server, {ENVIRONMENT, AUTH_SERVICE});
 
 // route for handling 404 requests(unavailable routes)
 server.use((req, res) => {
