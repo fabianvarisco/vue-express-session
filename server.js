@@ -33,6 +33,7 @@ const vueOptions = {
       { name: 'application-name', content: 'AFIP BFA TSA2' },
       { name: 'description', content: 'AFIP TimeStamping service using Blockchian Federal Argentina', id: 'desc' },
       // Generic rel for things like icons and stuff
+      // TODO: ver porque no funca los favicons
       { rel: 'icon', href: 'statics/favicons/favicon.d9205a9c.ico' },
       { rel: 'shortcut icon', href: 'statics/favicons/favicon.d9205a9c.ico' },
       /*

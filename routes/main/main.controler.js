@@ -70,10 +70,10 @@ module.exports = (server, options) => {
       authService: options.AUTH_SERVICE || '',
     };
     req.vueOptions.head.scripts.push({
-      src: 'https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js',
+      src: 'https://unpkg.com/axios/dist/axios.min.js',
     });
     req.vueOptions.head.scripts.push({
-      src: 'https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js',
+      src: 'https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js',
     });
     req.vueOptions.head.title = options.HEAD_TITLE || 'head.title';
     res.renderVue('main/main.vue', data, req.vueOptions);
