@@ -38,14 +38,24 @@ module.exports = (server, options) => {
     console.log('controled route detected');
     try {
       const token = req.signedCookies.token;
-      if (!token) throw Error('Empty session');
+      if (!token || token.length < 5) throw Error('Empty session');
+
       const cuil = decode(token);
       console.log('session cuil:', cuil);
       const result = cuitUtil.validateAsCuil(cuil);
-      if (result.error) throw Error(`Invalid session - [${result.error.message}]`);
+      if (result.error) {
+        throw Error(`Invalid session - [${result.error.message}]`);
+      }
+
+      const user = req.signedCookies.user;
+      if (!user || user.cuil !== cuil) {
+        throw Error(`Invalid session - from cookie.token [${cuil}] - from cookie.user [${user.cuil}]`);
+      }
 
       const bodyUserCuit = req.sanitize(req.body.user.cuit);
-      if (bodyUserCuit && bodyUserCuit !== cuil) throw Error(`Invalid session - from body [${bodyUserCuit}] - from cookie [${cuil}]`).emd();
+      if (bodyUserCuit && bodyUserCuit !== cuil) {
+        throw Error(`Invalid session - from body [${bodyUserCuit}] - from cookie [${cuil}]`);
+      }
       next();
 
     } catch (err) {
@@ -55,21 +65,10 @@ module.exports = (server, options) => {
   });
 
   server.get('/', (req, res) => {
-    const token = req.signedCookies.token;
-    var cuil;
-    var name = '';
-    if (token) {
-      cuil = decode(req.signedCookies.token);
-      if (cuitUtil.validateAsCuil(cuil).error) {
-        cuil = '';
-      } else {
-        // TODO: get username name from PUC service
-        name = `name of ${cuil}`;
-      }
-    }
+    const user = req.signedCookies.user;
     const data = {
       title: 'AFIP TSA',
-      user: { cuil, name },
+      user,
       hash: '',
       authService: options ? (options.AUTH_SERVICE || '') : '',
     };
@@ -85,13 +84,26 @@ module.exports = (server, options) => {
 
   server.post('/session', (req, res) => {
     clearSession(res);
-    const token = req.sanitize(req.body.token);
+    var token = req.sanitize(req.body.token);
     const sign = req.sanitize(req.body.sign);
+    var cuil = '';
+    var name = '';
+    if (token && token.length > 5) {
+      cuil = decode(token);
+      if (cuitUtil.validateAsCuil(cuil).error) {
+        token = '';
+        cuil = '';
+      } else {
+        // TODO: get username name from PUC service
+        name = `name of ${cuil}`;
+      }
+    }
 
     // TODO: validate token / sign
 
     res.cookie('token', token, { signed: true });
     res.cookie('sign', sign, { signed: true });
+    res.cookie('user', {cuil, name}, { signed: true });
     res.cookie('views', 0);
     res.redirect('/');
   });
