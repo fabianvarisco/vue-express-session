@@ -2,7 +2,7 @@
 
 const cuitUtil = require('../../utils/cuit');
 
-const ROUTE_ROOT='/bfatsa';
+const ROUTE_ROOT = '/bfatsa';
 
 function decode(data) {
   return Buffer.from(data, 'base64').toString('ascii');
