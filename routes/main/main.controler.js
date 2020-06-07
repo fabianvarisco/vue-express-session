@@ -70,7 +70,7 @@ module.exports = (server, options) => {
       title: 'AFIP TSA',
       user,
       hash: '',
-      authService: options ? (options.AUTH_SERVICE || '') : '',
+      authService: options.AUTH_SERVICE || '',
     };
     req.vueOptions.head.scripts.push({
       src: 'https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js',
@@ -78,7 +78,7 @@ module.exports = (server, options) => {
     req.vueOptions.head.scripts.push({
       src: 'https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js',
     });
-    req.vueOptions.head.title = 'server side render app !!!';
+    req.vueOptions.head.title = options.HEAD_TITLE || 'head.title';
     res.renderVue('main/main.vue', data, req.vueOptions);
   });
 

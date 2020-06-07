@@ -6,6 +6,7 @@ const PROTOCOL = process.env.PROTOCOL || 'https';
 const ENVIRONMENT = process.env.ENVIRONMENT || 'prod';
 const ENTRY_POINT = process.env.ENTRY_POINT || `${PROTOCOL}://localhost:${PORT}/session`;
 const AUTH_SERVICE = process.env.AUTH_SERVICE || `${PROTOCOL}://localhost:${PORT}/login`;
+const HEAD_TITLE = process.env.HEAD_TITLE || 'vue app';
 
 const COOKIE_SECRET = 'XWz-vw-16OXNuFsNUnTMCPbzRKk';
 
@@ -84,7 +85,7 @@ if (ENVIRONMENT === 'dev') {
   require('./routes/login/login.controler')(server, {ENTRY_POINT});
 }
 
-require('./routes/main/main.controler')(server, {ENVIRONMENT, AUTH_SERVICE});
+require('./routes/main/main.controler')(server, {ENVIRONMENT, AUTH_SERVICE, HEAD_TITLE});
 
 // route for handling 404 requests(unavailable routes)
 server.use((req, res) => {
