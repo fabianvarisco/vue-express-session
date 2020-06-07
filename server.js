@@ -49,7 +49,10 @@ const vueOptions = {
       { rel: 'icon', href: 'statics/favicons/favicon.d9205a9c.ico', sizes: '32x32' },
       */
     ],
-  // styles: [{ style: 'assets/css/style.css' }],
+    styles: [
+      { style: 'statics/css/tsa2.css' },
+      { style: 'statics/css/style.css' },
+    ],
   },
 };
 
