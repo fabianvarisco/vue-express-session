@@ -1,6 +1,6 @@
 'use strict';
 
-const cuitUtil = require('../utils/cuit');
+const cuitUtil = require('../../utils/cuit');
 
 function decode(data) {
   return Buffer.from(data, 'base64').toString('ascii');

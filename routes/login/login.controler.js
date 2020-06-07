@@ -1,7 +1,7 @@
 'use strict';
 
 const URL = require('url').URL;
-const cuitUtil = require('../utils/cuit');
+const cuitUtil = require('../../utils/cuit');
 
 function encode(data) {
   return Buffer.from(data).toString('base64');
@@ -41,7 +41,7 @@ module.exports = (server, options) => {
       return;
     }
     const password = req.sanitize(req.body.password);
-    if (password.length < 5) {
+    if (!password || password.length < 5) {
       res.status(400).send('Empty or short password').end();
       return;
     }

@@ -23,10 +23,9 @@ const helmet = require('helmet');
 const path = require('path');
 
 const vueOptions = {
-//  rootPath: path.join(__dirname, 'routes'),
-  rootPath: __dirname,
+  rootPath: path.join(__dirname, 'routes'),
   head: {
-    styles: [{ style: 'assets/css/style.css' }],
+  // styles: [{ style: 'assets/css/style.css' }],
   },
 };
 
@@ -82,15 +81,25 @@ server.get('/client-side-render', (req, res) => {
 });
 
 if (ENVIRONMENT === 'dev') {
-  require('./login/login.controler')(server, {ENTRY_POINT});
+  require('./routes/login/login.controler')(server, {ENTRY_POINT});
 }
 
-require('./main/main.controler')(server, {ENVIRONMENT, AUTH_SERVICE});
+require('./routes/main/main.controler')(server, {ENVIRONMENT, AUTH_SERVICE});
 
 // route for handling 404 requests(unavailable routes)
 server.use((req, res) => {
   res.status(404).send("Sorry can't find that!");
 });
+
+// TODO: crear un http op un https server
+//
+// var http = require('http')
+//  , https = require('https')
+//  , express = require('express')
+//  , app = express();
+//
+// http.createServer(app).listen(80);
+// https.createServer({ ... }, app).listen(443);
 
 module.exports = server.listen(PORT, () => {
   console.log('Worker', process.pid, 'listening on port', PORT);
