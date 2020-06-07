@@ -29,14 +29,17 @@ const vueOptions = {
   head: {
     title: 'AFIP',
     metas: [
-      { name: 'charset', content: 'utf-8' },
+      { charset: 'utf-8' },
+      // TODO: agregar http-equiv
+      // { http-equiv: 'X-UA-Compatible', content: 'IE=edge' },
       { name: 'application-name', content: 'AFIP BFA TSA2' },
-      { name: 'description', content: 'AFIP TimeStamping service using Blockchian Federal Argentina', id: 'desc' },
+      { name: 'description', content: 'AFIP TimeStamping service using Blockchain Federal Argentina', id: 'desc' },
+      { name: 'viewport', content: 'width=device-width,initial-scale=1.0' },
       // Generic rel for things like icons and stuff
       // TODO: ver porque no funca los favicons
       { rel: 'icon', href: 'statics/favicons/favicon.d9205a9c.ico' },
-      { rel: 'shortcut icon', href: 'statics/favicons/favicon.d9205a9c.ico' },
       /*
+      { rel: 'shortcut icon', href: 'statics/favicons/favicon.d9205a9c.ico' },
       { rel: 'icon', type: 'image/png', href: 'statics/favicons/favicon.d9205a9c.ico', sizes: '32x32' },
       { rel: 'icon', type: 'image/jpg', href: 'statics/favicons/favicon.d9205a9c.ico', sizes: '32x32' },
       { rel: 'icon', type: 'image/bmp', href: 'statics/favicons/favicon.d9205a9c.ico', sizes: '32x32' },
