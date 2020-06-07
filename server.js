@@ -33,7 +33,17 @@ const vueOptions = {
       { name: 'application-name', content: 'AFIP BFA TSA2' },
       { name: 'description', content: 'AFIP TimeStamping service using Blockchian Federal Argentina', id: 'desc' },
       // Generic rel for things like icons and stuff
-      { rel: 'shortcut icon', href: '/statics/favicons/favicon.d9205a9c.ico', sizes: '32x32' },
+      { rel: 'icon', href: 'statics/favicons/favicon.d9205a9c.ico' },
+      { rel: 'shortcut icon', href: 'statics/favicons/favicon.d9205a9c.ico' },
+      /*
+      { rel: 'icon', type: 'image/png', href: 'statics/favicons/favicon.d9205a9c.ico', sizes: '32x32' },
+      { rel: 'icon', type: 'image/jpg', href: 'statics/favicons/favicon.d9205a9c.ico', sizes: '32x32' },
+      { rel: 'icon', type: 'image/bmp', href: 'statics/favicons/favicon.d9205a9c.ico', sizes: '32x32' },
+      { rel: 'icon', type: 'image/gif', href: 'statics/favicons/favicon.d9205a9c.ico', sizes: '32x32' },
+      { rel: 'icon', href: 'statics/favicons/favicon.d9205a9c.ico' },
+      { rel: 'icon', href: 'statics/favicons/favicon.d9205a9c.ico', sizes: '16x16' },
+      { rel: 'icon', href: 'statics/favicons/favicon.d9205a9c.ico', sizes: '32x32' },
+      */
     ],
   // styles: [{ style: 'assets/css/style.css' }],
   },
@@ -53,7 +63,9 @@ server.use(bodyParser.urlencoded({ extended: true }));
 server.use(compress());
 
 // https://expressjs.com/es/starter/static-files.html
-server.use('/statics', express.static(path.join(__dirname + '/statics')));
+server.use('/statics', express.static(path.join(__dirname, 'statics')));
+
+// server.use('/favicon.ico', express.static(path.join(__dirname, 'statics', 'favicons', 'favicon.d9205a9c.ico')));
 
 const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 const cookiesOptions = {
