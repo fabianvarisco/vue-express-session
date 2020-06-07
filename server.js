@@ -4,7 +4,7 @@ require('dotenv').config();
 const PORT = process.env.PORT || 8080;
 const PROTOCOL = process.env.PROTOCOL || 'https';
 const ENVIRONMENT = process.env.ENVIRONMENT || 'prod';
-const ENTRY_POINT = process.env.ENTRY_POINT || `${PROTOCOL}://localhost:${PORT}/session`;
+const ENTRY_POINT = process.env.ENTRY_POINT || `${PROTOCOL}://localhost:${PORT}/bfatsa/session`;
 const AUTH_SERVICE = process.env.AUTH_SERVICE || `${PROTOCOL}://localhost:${PORT}/login`;
 const HEAD_TITLE = process.env.HEAD_TITLE || 'vue app';
 
@@ -23,9 +23,18 @@ const helmet = require('helmet');
 
 const path = require('path');
 
+// https://www.npmjs.com/package/express-vue#options
 const vueOptions = {
   rootPath: path.join(__dirname, 'routes'),
   head: {
+    title: 'AFIP',
+    metas: [
+      { name: 'charset', content: 'utf-8' },
+      { name: 'application-name', content: 'AFIP BFA TSA2' },
+      { name: 'description', content: 'AFIP TimeStamping service using Blockchian Federal Argentina', id: 'desc' },
+      // Generic rel for things like icons and stuff
+      { rel: 'shortcut icon', href: '/statics/favicons/favicon.d9205a9c.ico', sizes: '32x32' },
+    ],
   // styles: [{ style: 'assets/css/style.css' }],
   },
 };
@@ -43,7 +52,8 @@ server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(compress());
 
-// server.use(server.locals.rootPath, express.static(__dirname));
+// https://expressjs.com/es/starter/static-files.html
+server.use('/statics', express.static(path.join(__dirname + '/statics')));
 
 const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 const cookiesOptions = {
@@ -75,11 +85,6 @@ server.use((req, res, next) => {
 
 // test
 server.get('/test', (req, res) => { res.json({ status: 'OK' }); });
-
-// client-side-render
-server.get('/client-side-render', (req, res) => {
-  res.sendFile(path.join(__dirname + '/client-side-render.html'));
-});
 
 if (ENVIRONMENT === 'dev') {
   require('./routes/login/login.controler')(server, {ENTRY_POINT});

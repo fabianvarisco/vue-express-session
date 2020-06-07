@@ -2,17 +2,14 @@
 
 const cuitUtil = require('../../utils/cuit');
 
+const ROUTE_ROOT='/bfatsa';
+
 function decode(data) {
   return Buffer.from(data, 'base64').toString('ascii');
 };
 
-const freeRoutes = [
-  { method: 'GET', route: '/login' },
-  { method: 'POST', route: '/login' },
-  { method: 'GET', route: '/' },
-  { method: 'GET', route: '/session' },
-  { method: 'POST', route: '/session' },
-  { method: 'DELETE', route: '/session' },
+const aclRoutes = [
+  { method: 'POST', route: ROUTE_ROOT + '/stamp' },
 ];
 
 function clearSession(res) {
@@ -30,7 +27,7 @@ module.exports = (server, options) => {
 
   // access control
   server.use((req, res, next) => {
-    if (freeRoutes.some((x) => (x.method === req.method && x.route === req.originalUrl))) {
+    if (!aclRoutes.some((x) => (x.method === req.method && x.route === req.originalUrl))) {
       console.log('free route detected');
       next();
       return;
@@ -64,7 +61,7 @@ module.exports = (server, options) => {
     }
   });
 
-  server.get('/', (req, res) => {
+  server.get(ROUTE_ROOT, (req, res) => {
     const user = req.signedCookies.user;
     const data = {
       title: 'AFIP TSA',
@@ -82,7 +79,7 @@ module.exports = (server, options) => {
     res.renderVue('main/main.vue', data, req.vueOptions);
   });
 
-  server.post('/session', (req, res) => {
+  server.post(ROUTE_ROOT + '/session', (req, res) => {
     clearSession(res);
     var token = req.sanitize(req.body.token);
     const sign = req.sanitize(req.body.sign);
@@ -105,20 +102,20 @@ module.exports = (server, options) => {
     res.cookie('sign', sign, { signed: true });
     res.cookie('user', {cuil, name}, { signed: true });
     res.cookie('views', 0);
-    res.redirect('/');
+    res.redirect(ROUTE_ROOT);
   });
 
-  server.delete('/session', (req, res) => {
+  server.delete(ROUTE_ROOT + '/session', (req, res) => {
     clearSession(res);
     res.end();
   });
 
-  server.get('/session', (req, res) => {
+  server.get(ROUTE_ROOT + '/session', (req, res) => {
     const tokensso = req.signedCookies.token;
     res.json({ tokensso, views: req.cookies.views });
   });
 
-  server.post('/stamp', (req, res) => {
+  server.post(ROUTE_ROOT + '/stamp', (req, res) => {
     const hash = req.sanitize(req.body.hash);
     const userCuit = req.sanitize(req.body.user.cuit);
     console.log(`user [${userCuit}] hashToStamp [${hash}]`);

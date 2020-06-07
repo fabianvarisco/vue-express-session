@@ -58,7 +58,7 @@
                   user: { cuil: vm.user.cuil },
                   hash,
                 }
-                axios.post('/stamp', data).then((res) => {
+                axios.post('/bfatsa/stamp', data).then((res) => {
                   console.log(res.data);
                   vm.result = res.data;
                 }).catch(function(err) {
@@ -68,7 +68,7 @@
             },
             logout: function() {
                 const vm = this;
-                axios.delete('/session').then((res) => {
+                axios.delete('/bfatsa/session').then((res) => {
                     console.log(res.data);
                     vm.result = 'session close !!!';
                 }).catch(function(err) {
